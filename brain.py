@@ -1,11 +1,12 @@
 from Sensors import motion  
 from Sensors import sound
-from Sensors import touch
 from Messaging import gmail
+from Sensors import touch
 #from Sensors import gas
 from Servo import servo_pig
 import time
 import settings
+import os
 
 # ====== VARIABLES ====== #
 # Cooldown for animations
@@ -18,7 +19,7 @@ detected = False
 
 # ====== FUNCTIONS ====== #
 def init():
-    print("===============")
+    
     motion.init()
     sound.init()
 	#gas.init()
@@ -36,21 +37,23 @@ while True:
         try:
             
                 # Once detected it goes on a 500 ticks cooldown
-                if touch.isTouched:
+                if touch.isTouched():
+                    print("Touched")
                     servo_pig.sweepfast()
                 if not detected:
-                        if motion.inRange():
-                                detected = True
-                                cooldownDetected = 500
+                       if motion.inRange():
+                           print("Motion detected")
+                           detected = True
+                           cooldownDetected = 500
+                           servo_pig.sweep(0.4, 4)
                 else:
-                        print("Motion detected")
-                        servo_pig.sweepfast()
-
-                        if cooldownDetected > 0:
-                                cooldownDetected -= 1
-                        else:
-                                detected = False
-                                #if it detects sound from his human
+                    if touch.isTouched():
+                        servo_pig.sweepfast(0,1, 5)
+#                      if cooldownDetected > 0:
+  #                              cooldownDetected -= 1
+   #                     else:
+     #                           detected = False
+    #                            #if it detects sound from his human
                 if sound.detectSoundLevel(settings.human_sound_level):
                             servo_pig.sweepfast()
                 # Once it has barked it will wait 100 ticks before it can bark again
@@ -60,7 +63,7 @@ while True:
                             servo_pig.sweepfast()
                             message='Dangerous Sound Level'
                             subject='Smart pug Sound detection'
-                            gmail.sendemail(sender=settings.login,recipients=settings.recipients,cc_recipients=settings.cc_recipients,subject=subject,msg=message,login=settings.login,password=settings.password)
+                            #gmail.sendemail(sender=settings.login,recipients=settings.recipients,cc_recipients=settings.cc_recipients,subject=subject,msg=message,login=settings.login,password=settings.password)
                             tired=True
                         
        
@@ -76,7 +79,6 @@ while True:
                                 cooldown = 25
                                 tired = False
 
-                print(detected)
                 time.sleep(.1)
         except IOError:
             print("Error")
@@ -88,4 +90,4 @@ while True:
 		# Delay to prevent sensor information overload
                     
                     
-            servo_pig.shutdown()
+servo_pig.shutdown()
