@@ -9,7 +9,8 @@ pi = pigpio.pi()
 
 pin=18
 def shutdown():
-    pigpio.stop()
+    pi.set_servo_pulsewidth(pin,0)
+    
 
 def init():
         #Initialize pigpiod in commandline to setup pigpiod.
@@ -22,12 +23,16 @@ def init():
         print("Initialized servo on GPIO18")
         print(pi)
    #pulse width between 0 or 500-2500
+
 def sweep(delay, repeat):
+    print("Sweeping")
     for x in range(repeat):
         pi.set_servo_pulsewidth(pin, 500)
         time.sleep(delay)
         pi.set_servo_pulsewidth(pin, 2500)
         time.sleep(delay)
+        
+    shutdown()
 	
 	
 	#pi.set_servo_pulsewidth(pin, 0);
@@ -62,5 +67,6 @@ def sweepfast():
         
 init()
 time.sleep(0.5)
-sweep(0.2, 4)
+sweep(0.1, 8)
+
 #sweepfast()

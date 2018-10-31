@@ -34,13 +34,21 @@ THE SOFTWARE.
 '''
 import time
 import grovepi
+import settings
 
 # Connect the Grove Touch Sensor to digital port D4
 # SIG,NC,VCC,GND
-touch_sensor = 3
 
-grovepi.pinMode(touch_sensor,"INPUT")
 
+
+def init():
+    if(settings.touch_sensor):
+        grovepi.pinMode(settings.touch_sensor,"INPUT")
+        print("Initialized touch")
+        return 1
+    else:
+        return 0
+    
 def isTouched():
     
-    return grovepi.digitalRead(touch_sensor)
+    return grovepi.digitalRead(settings.touch_sensor)
