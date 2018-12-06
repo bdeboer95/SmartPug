@@ -27,8 +27,6 @@ def detectSoundLevel(sound_level):
 	left = grovepi.analogRead(pin_left)
 	#right = grovepi.analogRead(pin_right)
 
-        
-
 	# Determine direction
 	#margin = 5
 

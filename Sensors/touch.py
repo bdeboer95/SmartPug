@@ -42,5 +42,4 @@ touch_sensor = 3
 grovepi.pinMode(touch_sensor,"INPUT")
 
 def isTouched():
-    
     return grovepi.digitalRead(touch_sensor)

@@ -1,111 +1,83 @@
-from Sensors import motion  
-from Sensors import sound
-from Messaging import gmail
-from Sensors import touch
-from Logger.logger import Logger
-from SensorData.sensornames import SensorNames
-#from Sensors import gas
+import time, settings, os, datetime
+
 from Servo import servo_pig
-import time
-import settings
-import os
+from Sensors import motion, sound, touch, gas
+from SensorData.sensornames import SensorNames
 
+from Messaging import gmail
+from Logger.logger import Logger
 
-# ====== VARIABLES ====== #
-
-
-# Cooldown for animations
-cooldown = 25
-tired = False
-
-# Cooldown for motion detecting
-cooldownInit = 500
-detected = False
-
-# ====== FUNCTIONS ====== #
-def init():
-    motion.init()
-    sound.init()
-	#gas.init()
-	#touch.init()
-
-    #Write to Log
-    #logger.log(SensorNames.TOUCH, 1)
-    servo_pig.init()
-    servo_pig.sweep(0.4, 4)
-    #servo_pig.sweep()
-    print("===============")
-    time.sleep(2)
-
-#define loggers    
-def initLoggers():
-    motionLogger=Logger(SensorNames.MOTION)
-    soundLogger= Logger(SensorNames.SOUND)
-    gasLogger = Logger(SensorNames.GAS)
-    accelLogger = Logger(SensorNames.ACCELEROMETER)
-
-
-#======== MAIN ========= #
-init()
-
-while True:
-        try:
+class TeddyBear:
+    def __init__(self):
+        self.cooldownMotionMin = 0
+        #100 ticks = (100*0.1) = 10 secs
+        self.cooldownMotionMax = 100
+        
+        self.tired = False
+        self.detected = False
+        
+        sound.init()
+        motion.init()
+        servo_pig.init()
+        
+        #self.touchLogger  = Logger(SensorNames.TOUCH)
+        self.soundLogger  = Logger(SensorNames.SOUND)
+        self.motionLogger = Logger(SensorNames.MOTION)
+        
+        date_kickoff_midnight = datetime.datetime.strptime('2018-12-04 00:00:00', "%Y-%m-%d %H:%M:%S")
+        print date_kickoff_midnight
+        
+        d = datetime(2018, 12, 4, 0, 0, 0)
+        unixtime = time.mktime(d.timetuple())
+        print unixtime
+        
+        date_kickoff = datetime.datetime.strptime(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S'), "%Y-%m-%d %H:%M:%S")
+        print date_kickoff
+        
+        date_monitor_one   = date_kickoff + datetime.timedelta(days=1)
+        date_monitor_two   = date_kickoff + datetime.timedelta(days=2)
+        date_monitor_three = date_kickoff + datetime.timedelta(days=3)
+        date_monitor_four  = date_kickoff + datetime.timedelta(days=4)
+        date_monitor_five  = date_kickoff + datetime.timedelta(days=5)
+        date_monitor_six   = date_kickoff + datetime.timedelta(days=6)
+        
+        print date_monitor_one
+        print date_monitor_two
+        print date_monitor_three
+        print date_monitor_four
+        print date_monitor_five
+        print date_monitor_six
+        
+        time.sleep(2) 
+        
+    def monitor(self):
+        while True:
+            try:
+                if not self.detected and self.cooldownMotionMin == 0:
+                   if motion.inRange():
+                       self.motionLogger.log(1)
+                       self.detected = True
+                       self.cooldownMotionMin = self.cooldownMotionMax
+                       
+                if sound.detectSoundLevel(settings.human_sound_level):
+                    self.soundLogger.log(2)
+                    
+                #if touch.isTouched():
+                #    print("Touch detected")
+                #    self.touchLogger.log(3)
+                    
+            except IOError:
+                print("Error")
+                
+            if self.detected and self.cooldownMotionMin >= 0 and self.cooldownMotionMin <= self.cooldownMotionMax:
+                self.cooldownMotionMin = self.cooldownMotionMin - 1
+                if self.cooldownMotionMin == 0:
+                    self.detected = False
             
-                # Once detected it goes on a 500 ticks cooldown
-                if touch.isTouched():
-                    #logger.log("Touch", 
-                    print("Touched")
-                    #servo_pig.sweepfast()
-                if not detected:
-                       if motion.inRange():
-                           print("Motion detected")
-                           detected = True
-                           cooldownDetected = 500
-                           servo_pig.sweep(0.4, 4)
-                else:
-                    if touch.isTouched():
-                        print("touched")
+            time.sleep(0.1)
+        servo_pig.shutdown()
+        
 
-                time.sleep(0.1)
-                     #   servo_pig.sweepfast(0,1, 5)
-#                      if cooldownDetected > 0:
-  #                              cooldownDetected -= 1
-   #                     else:
-     #                           detected = False
-    #                            #if it detects sound from his human
-                #if sound.detectSoundLevel(settings.human_sound_level):
-                      #      servo_pig.sweepfast()
-                # Once it has barked it will wait 100 ticks before it can bark again
-                #if not tired:
-                   #     if sound.detectSoundLevel(settings.danger_sound_level):
-                    #        print("Danger sound level: Email has been sent")
-                       #     servo_pig.sweepfast()
-                     #       message='Dangerous Sound Level'
-                      #      subject='Smart pug Sound detection'
-                            #gmail.sendemail(sender=settings.login,recipients=settings.recipients,cc_recipients=settings.cc_recipients,subject=subject,msg=message,login=settings.login,password=settings.password)
-                       #     tired=True
-                        
-       
- 
-		        # TODO
-			#if canFeel():
-			        #print "Am I good boy?"
-
-               # else:
-                ##        if cooldown > 0:
-                #                cooldown -= 1
-                 #       else:
-                  #              cooldown = 25
-                   #             tired = False
-
-        except IOError:
-            print("Error")
-                # Always check for gas :)
-		#if gas.inDanger():
-			# todo: make more userfriendly
-			#print "Run mothafucka run" 
-
-		# Delay to prevent sensor information overload
-                    
-                    
-servo_pig.shutdown()
+if __name__ == '__main__':
+    objTeddyBear = TeddyBear()
+    objTeddyBear.monitor()
