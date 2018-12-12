@@ -11,7 +11,7 @@ class Logger:
         return time.time()
 
     def createFile(self):
-        self.logFile = open("./SensorData/{0}/{1}.txt".format(self.sensor, self.creationDate), 'a')
+        self.logFile = open("/home/pi/Desktop/smartteddy/SensorData/{0}/{1}.txt".format(self.sensor, self.creationDate), 'a')
 
     def timeToDateTime(self, timeStamp):
         return datetime.datetime.fromtimestamp(timeStamp).strftime('%Y-%m-%d %H:%M:%S')
