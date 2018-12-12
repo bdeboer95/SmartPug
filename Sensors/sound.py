@@ -18,11 +18,6 @@ def init():
 def getDirection():
 	return str(direction)
 
-def detectSoundLevel(sound_level):
+def getSoundLevel():
 	# Read sensors
-	left = grovepi.analogRead(pin_left)
-
-	if left > sound_level:
-		return True
-
-	return False 
+	return grovepi.analogRead(pin_left)

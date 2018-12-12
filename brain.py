@@ -13,7 +13,12 @@ class TeddyBear:
         #100 ticks = (100*0.1) = 10 secs
         self.cooldownMotionMax = 100
         
+        self.cooldownSoundMin = 0
+        #20 ticks = (20*0.1) = 2 secs
+        self.cooldownSoundMax = 20
+        
         self.tired = False
+        self.soundDetected = False
         self.motionDetected = False
         
         sound.init()
@@ -31,12 +36,14 @@ class TeddyBear:
             try:
                 if not self.motionDetected and self.cooldownMotionMin == 0:
                    if motion.inRange():
-                       self.motionLogger.log(1)
+                       self.motionLogger.log('{};{}'.format(str(datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M')), 1))
                        self.motionDetected = True
                        self.cooldownMotionMin = self.cooldownMotionMax
                        
-                if sound.detectSoundLevel(settings.human_sound_level):
-                    self.soundLogger.log(2)
+                if not self.soundDetected and self.cooldownSoundMin == 0:
+                    self.soundLogger.log('{};{}'.format(str(datetime.datetime.fromtimestamp(time.time()).strftime('%H:%M')), sound.getSoundLevel()))
+                    self.soundDetected = True
+                    self.cooldownSoundMin = self.cooldownSoundMax
                     
                 #if touch.isTouched():
                 #    print("Touch detected")
@@ -49,6 +56,11 @@ class TeddyBear:
                 self.cooldownMotionMin = self.cooldownMotionMin - 1
                 if self.cooldownMotionMin == 0:
                     self.motionDetected = False
+        
+            if self.soundDetected and self.cooldownSoundMin >= 0 and self.cooldownSoundMin <= self.cooldownSoundMax:
+                self.cooldownSoundMin = self.cooldownSoundMin - 1
+                if self.cooldownSoundMin == 0:
+                    self.soundDetected = False
             
             time.sleep(0.1)
         servo_pig.shutdown()
