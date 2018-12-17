@@ -25,24 +25,25 @@ def sendEmail():
     msg['Subject'] = "see attachments :)" 
     msg['From'] = 'smartteddykb81@gmail.com'
     msg['To'] = 'smartteddykb81@gmail.com'
-    part = MIMEBase('application', "octet-stream")
     
+    part = MIMEBase('application', "octet-stream")
     part.set_payload(open(motionFile, "rb").read())
     Encoders.encode_base64(part)
     part.add_header('Content-Disposition', 'attachment; filename=' + motionFile)
     msg.attach(part)
     
+    part = MIMEBase('application', "octet-stream")
     part.set_payload(open(soundFile, "rb").read())
     Encoders.encode_base64(part)
     part.add_header('Content-Disposition', 'attachment; filename=' + soundFile)
     msg.attach(part)
     
+    part = MIMEBase('application', "octet-stream")
     part.set_payload(open(accelFile, "rb").read())
     Encoders.encode_base64(part)
     part.add_header('Content-Disposition', 'attachment; filename=' + accelFile)
     msg.attach(part)
     
-
     server.sendmail('smartteddykb81@gmail.com', 'smartteddykb81@gmail.com', msg.as_string())
 
 sendEmail()
