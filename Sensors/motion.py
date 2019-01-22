@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import grovepi
+import grovepi, time
 
 # ====== VARIABLES ====== #
 # PIR sensor
